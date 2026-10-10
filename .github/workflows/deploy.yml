@@ -1,0 +1,51 @@
+name: Deploy to Netlify
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: netlify-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the site
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+
+      - name: Prepare public files
+        run: |
+          mkdir -p "$RUNNER_TEMP/homepace-site"
+          cp index.html "$RUNNER_TEMP/homepace-site/"
+          cp -R privacy "$RUNNER_TEMP/homepace-site/privacy"
+
+      - name: Deploy to Netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: >-
+          npx --yes netlify-cli@26.2.0 deploy
+          --prod --no-build
+          --dir "$RUNNER_TEMP/homepace-site"
+          --message "GitHub Actions $GITHUB_SHA"
+
+      - name: Verify the privacy page
+        run: >-
+          curl --fail --silent --show-error --location
+          --retry 5 --retry-delay 5 --retry-all-errors
+          https://homepace.netlify.app/privacy/
+          | grep -q 'Homepace privacy policy'
