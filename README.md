@@ -14,4 +14,4 @@ Static site for Homepace at https://homepace.hugo.dev.br.
 - Netlify project: `homepace` (`e0791572-953e-473a-bba4-a5f4c3318369`).
 - GitHub repository secrets: `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID`.
 - Netlify fallback URL: https://homepace.netlify.app.
-- DNS: Cloudflare CNAME `homepace.hugo.dev.br` → `homepace.netlify.app`, managed through the `cf` CLI. This record is outside the homelab Terraform configuration.
+- DNS: Cloudflare CNAME `homepace.hugo.dev.br` → `homepace.netlify.app`, DNS-only and managed through the `cf` CLI. Netlify provisions and renews HTTPS certificates; Cloudflare proxying stays off. This record is outside the homelab Terraform configuration.
